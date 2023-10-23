@@ -1,0 +1,96 @@
+SNOWFLAKE ASSIGNMENT - 1(FSDA 2.0)
+
+USE WAREHOUSE TEST_WAREHOUSE;
+USE DATABASE DEMO;
+
+CREATE OR REPLACE TABLE MT_SALES (
+	ORDER_ID VARCHAR(16777216),
+	ORDER_DATE DATE,
+	SHIP_DATE DATE,
+	SHIP_MODE VARCHAR(16777216),
+	CUSTOMER_NAME VARCHAR(16777216),
+	SEGMENT VARCHAR(16777216),
+	STATE VARCHAR(16777216),
+	COUNTRY VARCHAR(16777216),
+	MARKET VARCHAR(16777216),
+	REGION VARCHAR(16777216),
+	PRODUCT_ID VARCHAR(16777216),
+	CATEGORY VARCHAR(16777216),
+	SUB_CATEGORY VARCHAR(16777216),
+	PRODUCT_NAME VARCHAR(16777216),
+	SALES NUMBER(38,0),
+	QUANTITY NUMBER(38,0),
+	DISCOUNT NUMBER(38,0),
+	PROFIT NUMBER(38,0),
+	SHIPPING_COST NUMBER(38,0),
+	ORDER_PRIORITY VARCHAR(16777216),
+	YEAR VARCHAR(16777216),
+	primary key (ORDER_DATE)
+);
+
+
+SELECT * FROM MT_SALES
+LIMIT 100;
+
+DESCRIBE TABLE MT_SALES;
+
+--Q2-- SET PRIMARY KEY TO ORDER_ID
+ALTER TABLE MT_SALES
+DROP PRIMARY KEY;
+
+ALTER TABLE MT_SALES
+ADD PRIMARY KEY (ORDER_ID);
+
+--Q3--Check the data type for the Order date and Ship date and mention in what data type it should be. --
+--ANS: After cleaning the data set in Excel convert the string format to date format and then loaded
+
+--Q4--Create a new column called order_extract and extract the number after the last ‘–‘from the Order ID column.
+
+ALTER TABLE MT_SALES
+ADD COLUMN ORDER_EXTRACT NUMBER;
+
+UPDATE MT_SALES
+SET ORDER_EXTRACT = CAST(SPLIT_PART(ORDER_ID, '-', -1) AS VARCHAR(100));
+
+--Q5--Create a new column called Discount Flag and categorize it based on discount. Use ‘Yes’ if the discount is greater than zero else ‘No’.
+ALTER TABLE MT_SALES
+ADD COLUMN DISCOUNT_FLAG STRING;
+
+UPDATE MT_SALES
+SET DISCOUNT_FLAG = CASE WHEN DISCOUNT > 0 THEN 'YES' ELSE 'NO' END;
+
+--Q6--Create a new column called process days and calculate how many days it takes for each order id to process from the order to its shipment.
+
+ALTER TABLE MT_SALES
+ADD COLUMN PROCESS_DAYS NUMBER;
+
+UPDATE MT_SALES
+SET PROCESS_DAYS = DATEDIFF(day, ORDER_DATE, SHIP_DATE);
+
+--Q7--Create a new column called Rating and then based on the Process dates give rating like given below.
+--a. If process days less than or equal to 3days then rating should be 5
+--b. If process days are greater than 3 and less than or equal to 6 then rating should be 4
+--c. If process days are greater than 6 and less than or equal to 10 then rating should be 3
+--d. If process days are greater than 10 then the rating should be 2
+
+ALTER TABLE MT_SALES
+ADD COLUMN RATING NUMBER;
+
+UPDATE MT_SALES
+SET RATING = CASE WHEN PROCESS_DAYS <= 3 THEN '5'
+                         WHEN 3 > PROCESS_DAYS <= 6 THEN '4'
+                         WHEN 6 > PROCESS_DAYS <= 5 THEN '3'
+                         WHEN PROCESS_DAYS <= 5 THEN '2'
+                         ELSE '1' END;
+
+
+
+
+
+
+
+
+
+
+
+
